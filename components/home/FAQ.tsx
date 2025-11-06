@@ -4,33 +4,33 @@ import { useState } from 'react';
 
 const ITEMS = [
   {
-    q: 'Is this connected to real data?',
-    a: 'This MVP uses mock data and a local in-memory API. No external services are used.',
+    q: 'Is this already connected to my real cloud storage?',
+    a: 'Not yet. This MVP uses mock data and an in-memory API so you can design flows and UI first. Later you can plug in Google Drive, OneDrive or your own storage.',
   },
   {
-    q: 'How does AI analysis work?',
-    a: 'We simulate AI analysis that categorizes files and generates short summaries.',
+    q: 'What kinds of files does AI File Assistant target?',
+    a: 'The goal is to help with everything that clutters your life: invoices, contracts, IDs, insurance docs, recipes, screenshots and more.',
   },
   {
-    q: 'Do I need a credit card?',
-    a: 'No credit card needed to try the mock MVP. Upgrade prompts are informational only.',
+    q: 'Will my files leave my machine?',
+    a: 'The real product can be built with a privacy-first architecture. For now, in this playground, nothing is sent to third-party services — it all runs locally or with mock calls.',
   },
   {
-    q: 'Can I invite my team?',
-    a: 'Team features are planned for the Business tier and will be added in future iterations.',
+    q: 'What’s the difference between Free, Pro and Business?',
+    a: 'Free is for testing the idea on a small folder. Pro adds higher limits and more automation. Business is designed for teams with shared workspaces, access control and custom rules.',
   },
 ];
 
 export default function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <h3 className="mb-3 text-lg font-semibold text-slate-900">FAQ</h3>
       <ul className="divide-y divide-slate-200">
         {ITEMS.map((item, idx) => {
           const isOpen = open === idx;
           return (
-            <li key={item.q} className="py-3">
+            <li key={item.q} className="py-3 transition hover:bg-slate-50 rounded-md px-2 -mx-2">
               <button
                 type="button"
                 onClick={() => setOpen(isOpen ? null : idx)}
@@ -49,4 +49,3 @@ export default function FAQ() {
     </div>
   );
 }
-

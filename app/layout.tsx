@@ -31,24 +31,28 @@ export default function RootLayout({
           <div className="min-h-screen flex flex-col">
             <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/70 backdrop-blur">
               <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
-                <Link href="/" className="flex items-center gap-2">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-tr from-indigo-500 via-sky-500 to-emerald-400 text-xs font-bold text-white">AI</span>
-                  <span className="text-sm font-semibold tracking-tight">AI File Assistant</span>
+                <Link href="/" className="flex items-center gap-3">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-gradient-to-tr from-indigo-500 via-sky-500 to-emerald-400 text-xs font-bold text-white">AI</span>
+                  <span className="flex flex-col leading-tight">
+                    <span className="text-sm font-semibold tracking-tight">AI File Assistant</span>
+                    <span className="text-[11px] text-slate-500">Calm, searchable order for your files.</span>
+                  </span>
                 </Link>
                 <nav className="flex items-center gap-6">
                   <Link href="/" className="text-sm text-slate-700 hover:text-slate-900">Home</Link>
                   <Link href="/features" className="text-sm text-slate-700 hover:text-slate-900">Features</Link>
                   <Link href="/pricing" className="text-sm text-slate-700 hover:text-slate-900">Pricing</Link>
-                  <Link href="/auth/login" className="text-sm text-slate-700 hover:text-slate-900">Login</Link>
-                  <Link href="/auth/register" className="rounded-md bg-slate-900 px-3 py-1.5 text-sm text-white hover:bg-slate-800">Get Started</Link>
+                  <Link href="/dashboard" className="text-sm text-slate-700 hover:text-slate-900">Dashboard</Link>
+                  <Link href="/auth/login" className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-800 hover:bg-slate-50">Log in</Link>
+                  <Link href="/auth/register" className="rounded-md bg-slate-900 px-3 py-1.5 text-sm text-white hover:bg-slate-800">Get started</Link>
                 </nav>
               </div>
             </header>
             <main className="flex-1 mx-auto w-full max-w-6xl px-4 py-10">{children}</main>
             <footer className="border-t border-slate-200 bg-white">
-              <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-6 text-xs text-slate-600">
-                <p>© {new Date().getFullYear()} AI File Assistant</p>
-                <p>Built with Next.js & Tailwind CSS</p>
+              <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-1 px-4 py-6 text-xs text-slate-600 sm:flex-row">
+                <p>© {new Date().getFullYear()} AI File Assistant.</p>
+                <p>Built for organizing messy folders into a calm, searchable workspace.</p>
               </div>
             </footer>
           </div>

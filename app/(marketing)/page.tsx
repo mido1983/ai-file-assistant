@@ -17,7 +17,7 @@ export default function MarketingHomePage() {
               Turn your chaotic folders into a searchable brain.
             </h1>
             <p className="mt-4 max-w-prose text-lg text-slate-600">
-              AI File Assistant organizes documents by topic, removes duplicates, and creates smart collections and summaries — all with a few clicks.
+              AI File Assistant reads your PDFs, images and documents, groups them by meaning, finds duplicates, and builds smart collections for recipes, invoices, contracts and more.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link href="/auth/register" className="rounded-md bg-slate-900 px-5 py-2.5 text-white shadow-sm hover:bg-slate-800">
@@ -27,12 +27,7 @@ export default function MarketingHomePage() {
                 View features
               </Link>
             </div>
-            <div className="mt-3 flex items-center gap-2 text-xs text-slate-600">
-              <span className="rounded-md bg-gradient-to-tr from-indigo-500 via-sky-500 to-emerald-400 px-2 py-0.5 font-medium text-white">AI</span>
-              <span>No credit card</span>
-              <span>·</span>
-              <span>Mock data MVP</span>
-            </div>
+            <p className="mt-3 text-xs text-slate-600">You stay in control. This MVP runs on mock data and local in-memory APIs.</p>
           </div>
           <StatsPanel />
         </div>
@@ -44,21 +39,21 @@ export default function MarketingHomePage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <FeatureCard
             title="Auto classification"
-            desc="We group files by topic and context so you don’t have to."
+            desc="The assistant reads file content, recognizes what it is — a recipe, an invoice, a contract or an ID scan — and tags it automatically."
             icon={
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-tr from-indigo-500 via-sky-500 to-emerald-400 text-white">A</span>
             }
           />
           <FeatureCard
             title="Duplicate cleanup"
-            desc="Find duplicate files and keep the best copy automatically."
+            desc="Detect exact and near-duplicate documents so you can keep a single clean copy and free up space."
             icon={
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-tr from-indigo-500 via-sky-500 to-emerald-400 text-white">D</span>
             }
           />
           <FeatureCard
             title="Smart collections"
-            desc="Build dynamic collections from tags and metadata in one click."
+            desc="Instantly create views like “Tax 2024”, “Kids’ school docs” or “Desserts & cakes” without moving files by hand."
             icon={
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-tr from-indigo-500 via-sky-500 to-emerald-400 text-white">S</span>
             }
@@ -70,9 +65,9 @@ export default function MarketingHomePage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold">How it works</h2>
         <div className="grid gap-4 sm:grid-cols-3">
-          <StepCard step={1} title="Drop your messy folder" desc="Add your files or connect storage. No setup required." />
-          <StepCard step={2} title="AI reads & groups everything" desc="We analyze content, detect duplicates, and assign categories." />
-          <StepCard step={3} title="Review and done" desc="Browse smart collections and summaries — export anytime." />
+          <StepCard step={1} title="Drop in your messy folder" desc="Connect a folder or upload a batch of files. No renaming, no manual sorting." />
+          <StepCard step={2} title="AI reads, understands and groups" desc="We extract text, detect document types, and suggest collections and tags that make sense." />
+          <StepCard step={3} title="Review and accept" desc="Approve the suggested structure, tweak a few details, and enjoy a calm, searchable library." />
         </div>
       </section>
 
