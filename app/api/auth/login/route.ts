@@ -1,23 +1,42 @@
 import { NextResponse } from 'next/server';
-import type { User } from '@/types/user';
+import { prisma } from '@/lib/prisma';
+import { createSession, verifyPassword } from '@/lib/auth/server';
 
+export const runtime = 'nodejs';
+
+// POST /api/auth/login
 export async function POST(req: Request) {
-  const { email, password } = (await req.json()) as { email?: string; password?: string };
+  try {
+    const { email, password } = (await req.json()) as { email?: string; password?: string };
+    if (!email || !password) {
+      return NextResponse.json({ error: 'Missing email or password' }, { status: 400 });
+    }
 
-  // Simulate network/auth delay
-  await new Promise((r) => setTimeout(r, 350));
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      // TODO: consider generic message to avoid user enumeration
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
 
-  const safeEmail = email ?? 'user@example.com';
-  const nameFromEmail = safeEmail.split('@')[0] || 'User';
+    const ok = await verifyPassword(password, user.passwordHash);
+    if (!ok) {
+      // TODO: add brute-force protection, rate limiting, and audit logs
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
 
-  const user: User = {
-    id: `u_${Date.now()}`,
-    name: nameFromEmail.replace(/\W+/g, ' ').trim() || 'User',
-    email: safeEmail,
-    role: 'user',
-    plan: 'free',
-  };
+    await createSession(user.id);
 
-  return NextResponse.json(user);
+    return NextResponse.json({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role === 'ADMIN' ? 'admin' : 'user',
+      plan:
+        user.plan === 'BUSINESS' ? 'business' : user.plan === 'PRO' ? 'pro' : 'free',
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    });
+  } catch (err) {
+    return NextResponse.json({ error: 'Login failed' }, { status: 500 });
+  }
 }
-
