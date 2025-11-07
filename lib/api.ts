@@ -37,7 +37,8 @@ export async function apiRegister(input: {
 }
 
 export async function apiListFiles(): Promise<FileRecord[]> {
-  const res = await fetch('/api/files/list', { method: 'GET' });
+  // Unified files endpoint (Prisma-backed)
+  const res = await fetch('/api/files', { method: 'GET' });
   return handleJson<FileRecord[]>(res);
 }
 
@@ -45,8 +46,10 @@ export async function apiUploadFileMetadata(input: {
   originalName: string;
   size: number;
   mimeType: string;
+  text?: string;
 }): Promise<FileRecord> {
-  const res = await fetch('/api/files/upload', {
+  // POST to Prisma-backed files route; accepts optional extracted text for analysis later
+  const res = await fetch('/api/files', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),

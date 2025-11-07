@@ -46,6 +46,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Optional: refresh session state when the tab regains focus.
+  // TODO: debounce and add visibilitychange handling if needed.
+  useEffect(() => {
+    const onFocus = () => {
+      // Fire-and-forget; errors are swallowed inside refresh
+      void refresh();
+    };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, []);
+
   async function refresh() {
     try {
       setLoading(true);
