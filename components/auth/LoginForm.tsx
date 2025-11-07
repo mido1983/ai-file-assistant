@@ -3,22 +3,25 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { apiLogin } from '@/lib/api';
 
 export default function LoginForm() {
   const router = useRouter();
-  const { loginMock } = useAuth();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleLogin(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitting(true);
+    setError(null);
     try {
-      const user = await apiLogin(email, password);
-      loginMock(user);
+      await login(email, password);
       router.push('/dashboard');
+    } catch (err: any) {
+      // TODO: show better message from server; highlight fields
+      setError(err?.message || 'Failed to sign in');
     } finally {
       setSubmitting(false);
     }
@@ -26,6 +29,7 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleLogin} className="space-y-4">
+      {error && <p className="text-sm text-red-600">{error}</p>}
       <div>
         <label className="mb-1 block text-sm text-zinc-700" htmlFor="email">
           Email
@@ -59,6 +63,7 @@ export default function LoginForm() {
       >
         {submitting ? 'Signing in...' : 'Sign in'}
       </button>
+      {/* TODO: improve UX with proper validation and disabled states */}
     </form>
   );
 }

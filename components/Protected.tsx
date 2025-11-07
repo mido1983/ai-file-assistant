@@ -10,6 +10,7 @@ interface ProtectedProps {
   requiredRole?: UserRole;
 }
 
+// Basic client-side guard for UI. Real access control must be enforced on the server too.
 export default function Protected({ children, requiredRole = 'user' }: ProtectedProps) {
   const { user, loading } = useAuth();
 
@@ -34,4 +35,3 @@ export default function Protected({ children, requiredRole = 'user' }: Protected
 
   return <>{children}</>;
 }
-

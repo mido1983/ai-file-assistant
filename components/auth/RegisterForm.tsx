@@ -4,24 +4,27 @@ import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import type { SubscriptionPlan } from '@/types/user';
-import { apiRegister } from '@/lib/api';
 
 export default function RegisterForm() {
   const router = useRouter();
-  const { loginMock } = useAuth();
+  const { register } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [plan, setPlan] = useState<SubscriptionPlan>('free');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleRegister(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitting(true);
+    setError(null);
     try {
-      const user = await apiRegister({ name, email, password, plan });
-      loginMock(user);
+      await register({ name, email, password });
       router.push('/dashboard');
+    } catch (err: any) {
+      // TODO: show server-side validation messages inline
+      setError(err?.message || 'Failed to create account');
     } finally {
       setSubmitting(false);
     }
@@ -29,6 +32,7 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleRegister} className="space-y-4">
+      {error && <p className="text-sm text-red-600">{error}</p>}
       <div>
         <label className="mb-1 block text-sm text-zinc-700" htmlFor="name">
           Name
@@ -68,6 +72,7 @@ export default function RegisterForm() {
           required
         />
       </div>
+      {/* Plan selection kept for UI demo; backend defaults to FREE for now */}
       <div>
         <label className="mb-1 block text-sm text-zinc-700" htmlFor="plan">
           Plan
@@ -90,6 +95,7 @@ export default function RegisterForm() {
       >
         {submitting ? 'Creating account...' : 'Create account'}
       </button>
+      {/* TODO: improve UX with field validation and progress state */}
     </form>
   );
 }

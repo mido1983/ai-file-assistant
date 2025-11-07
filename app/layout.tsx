@@ -48,6 +48,7 @@ export default function RootLayout({
                 </nav>
               </div>
             </header>
+            {/* AuthProvider exposes auth state app-wide so all pages/components can access it */}
             <main className="flex-1 mx-auto w-full max-w-6xl px-4 py-10">{children}</main>
             <footer className="border-t border-slate-200 bg-white">
               <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-1 px-4 py-6 text-xs text-slate-600 sm:flex-row">
