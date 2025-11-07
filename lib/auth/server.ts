@@ -145,13 +145,15 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   try {
-    // Prefer bcrypt if the stored hash looks like bcrypt (e.g. $2b$...).
+    // Prefer bcrypt/bcryptjs if the stored hash looks like bcrypt (e.g. $2b$...).
     if (typeof stored === 'string' && stored.startsWith('$2')) {
       try {
+        // Try bcryptjs first (JS-only), then native bcrypt as a fallback
+        const bcryptjs: any = await import('bcryptjs').then(m => m.default ?? m).catch(() => null);
+        if (bcryptjs) return await bcryptjs.compare(password, stored);
         const bcrypt: any = await import('bcrypt').then(m => m.default ?? m).catch(() => null);
         if (bcrypt) return await bcrypt.compare(password, stored);
-        // If bcrypt is unavailable (e.g., dev without native module), fall back to scrypt check
-        // which will simply fail for bcrypt hashes.
+        // No bcrypt available; cannot verify bcrypt hashes in this environment
       } catch {
         // ignore and fall through to scrypt path
       }

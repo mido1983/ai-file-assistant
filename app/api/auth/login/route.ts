@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { createSession, verifyPassword } from '@/lib/auth/server';
+import bcryptjs from 'bcryptjs';
 
 export const runtime = 'nodejs';
 
@@ -48,18 +49,8 @@ export async function POST(req: Request) {
     let ok = false;
     try {
       if (hash.startsWith('$2')) {
-        // Prefer bcrypt for bcrypt-formatted hashes
-        const bcryptMod: any = await import('bcrypt').then((m) => m.default ?? m).catch((e) => {
-          console.error('Login: failed to load bcrypt module', e);
-          return null;
-        });
-        if (!bcryptMod) {
-          // Environment misconfiguration; log and fail auth without crashing
-          console.error('Login: bcrypt not available for bcrypt hash');
-          ok = false;
-        } else {
-          ok = await bcryptMod.compare(password, hash);
-        }
+        // Prefer bcryptjs on Vercel (no native compilation).
+        ok = await bcryptjs.compare(password, hash);
       } else {
         // Legacy scrypt hash support
         ok = await verifyPassword(password, hash);

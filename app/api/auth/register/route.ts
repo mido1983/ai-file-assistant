@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { createSession, hashPassword } from '@/lib/auth/server';
+import { createSession } from '@/lib/auth/server';
+import bcrypt from 'bcryptjs';
 
 export const runtime = 'nodejs';
 
@@ -24,8 +25,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email is already in use' }, { status: 409 });
     }
 
-    // TODO: switch to bcrypt/argon2; enforce strong password rules
-    const passwordHash = await hashPassword(password);
+    // Hash with bcryptjs to ensure compatibility on Vercel (no native build)
+    const passwordHash = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
       data: {

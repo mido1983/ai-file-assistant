@@ -1,8 +1,7 @@
-// NOTE:
-// This schema is used by the light backend running inside Next.js (Vercel).
-// There will also be a separate heavy Python backend later.
-// Keep models generic enough so they can be consumed by both.
 // prisma/schema.prisma
+// Database: Remote Prisma Postgres on Vercel.
+// No local DB is used; all migrations/seeds run against DATABASE_URL.
+// Set DATABASE_URL in Vercel Project Settings → Environment Variables.
 
 datasource db {
   provider = "postgresql"
