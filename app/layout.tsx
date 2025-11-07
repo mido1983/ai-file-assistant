@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
-import Link from "next/link";
+import Nav from "@/components/Nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,25 +29,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 text-slate-900`}>
         <AuthProvider>
           <div className="min-h-screen flex flex-col">
-            <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/70 backdrop-blur">
-              <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
-                <Link href="/" className="flex items-center gap-3">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-gradient-to-tr from-indigo-500 via-sky-500 to-emerald-400 text-xs font-bold text-white">AI</span>
-                  <span className="flex flex-col leading-tight">
-                    <span className="text-sm font-semibold tracking-tight">AI File Assistant</span>
-                    <span className="text-[11px] text-slate-500">Calm, searchable order for your files.</span>
-                  </span>
-                </Link>
-                <nav className="flex items-center gap-6">
-                  <Link href="/" className="text-sm text-slate-700 hover:text-slate-900">Home</Link>
-                  <Link href="/features" className="text-sm text-slate-700 hover:text-slate-900">Features</Link>
-                  <Link href="/pricing" className="text-sm text-slate-700 hover:text-slate-900">Pricing</Link>
-                  <Link href="/dashboard" className="text-sm text-slate-700 hover:text-slate-900">Dashboard</Link>
-                  <Link href="/auth/login" className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-800 hover:bg-slate-50">Log in</Link>
-                  <Link href="/auth/register" className="rounded-md bg-slate-900 px-3 py-1.5 text-sm text-white hover:bg-slate-800">Get started</Link>
-                </nav>
-              </div>
-            </header>
+            <Nav />
             {/* AuthProvider exposes auth state app-wide so all pages/components can access it */}
             <main className="flex-1 mx-auto w-full max-w-6xl px-4 py-10">{children}</main>
             <footer className="border-t border-slate-200 bg-white">
