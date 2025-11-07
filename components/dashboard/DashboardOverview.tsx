@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import PlanCard from '@/components/dashboard/PlanCard';
+import AiPanel from '@/components/dashboard/AiPanel';
 
 type ReportResponse = {
   stats: {
@@ -79,7 +80,9 @@ export default function DashboardOverview() {
           {/* TODO: Expand UI when stats/report include categories, sizes, duplicates, etc. */}
         </div>
       )}
+
+      {/* Experimental AI panel for MVP; placement may change later. */}
+      <AiPanel />
     </div>
   );
 }
-
