@@ -1,5 +1,6 @@
 // lib/ai.ts
-// Lightweight OpenAI helper for the Next.js backend.
+// Light AI helpers using OpenAI directly from the Next.js backend.
+// TODO: move heavier logic to the separate Python service when it is ready.
 // TODO: Set OPENAI_API_KEY in Vercel Project Settings to enable real AI calls.
 
 export interface AiAnalysisResult {
@@ -27,6 +28,31 @@ export interface AiSemanticHit {
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
 const OPENAI_MODEL = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
+
+// Small internal helper — minimal chat completion returning raw string
+export async function callOpenAi(prompt: string): Promise<string> {
+  if (!OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY is not set. TODO: configure it on Vercel.');
+  }
+  const res = await fetch(OPENAI_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.2,
+    }),
+  });
+  if (!res.ok) {
+    const msg = await res.text().catch(() => res.statusText);
+    throw new Error(`OpenAI error ${res.status}: ${msg}`);
+  }
+  const data = (await res.json()) as any;
+  return data?.choices?.[0]?.message?.content ?? '';
+}
 
 async function chatJson(system: string, user: string): Promise<any | null> {
   if (!OPENAI_API_KEY) return null;
@@ -86,6 +112,8 @@ function heuristicAnalysis(text: string): AiAnalysisResult {
 }
 
 export async function analyzeDocumentText(text: string): Promise<AiAnalysisResult> {
+  // TODO: truncate or chunk very long inputs; consider summary-first pass to reduce tokens
+  // TODO: improve prompt with examples; validate JSON strictly with zod in production
   const sys = 'You are an assistant that extracts structured JSON. Respond ONLY with JSON matching the schema {"category": string, "summary": string, "tags": string[] }.';
   const usr = `Analyze the following document content and return category, a brief 1-2 sentence summary, and 3-6 tags.\n\nCONTENT:\n${text}`;
   const json = await chatJson(sys, usr);
@@ -95,26 +123,23 @@ export async function analyzeDocumentText(text: string): Promise<AiAnalysisResul
   return heuristicAnalysis(text);
 }
 
-export async function generateFolderReport(input: Array<{ name: string; category?: string; summary?: string; tags?: string[] }>): Promise<AiFolderReport> {
-  const fallback: AiFolderReport = {
-    title: 'Folder overview',
-    text: `This folder contains ${input.length} items spanning categories like ${Array.from(
-      new Set(input.map((i) => i.category).filter(Boolean) as string[]),
-    ).join(', ') || 'various types'}.`,
-  };
-
+export async function generateFolderReport(stats: unknown): Promise<AiFolderReport> {
+  // TODO: define a stable Stats shape; include top categories, counts, size, examples
+  // TODO: strict JSON parsing + fallback to deterministic local summary if parsing fails
   const sys = 'You produce concise reports in Markdown and respond ONLY with JSON matching {"title": string, "text": string}.';
-  const bulletLines = input
-    .slice(0, 50)
-    .map((i) => `- ${i.name}${i.category ? ` [${i.category}]` : ''}${i.summary ? ` — ${i.summary}` : ''}`)
-    .join('\n');
-  const usr = `Create a short Markdown report about a folder. Include a descriptive title. Here are sample items (up to 50):\n${bulletLines}`;
+  const usr = `Create a short, friendly report about a folder based on this stats JSON. Include a descriptive title and a 1-2 paragraph body.\nSTATS:\n${JSON.stringify(stats, null, 2)}`;
   const json = await chatJson(sys, usr);
-  if (json && typeof json.title === 'string' && typeof json.text === 'string') return json as AiFolderReport;
-  return fallback;
+  if (json && typeof json.title === 'string' && typeof json.text === 'string') {
+    return json as AiFolderReport;
+  }
+  return {
+    title: 'Folder overview',
+    text: 'A quick snapshot of your documents based on the provided stats. (AI offline or JSON parse failed — using fallback.)',
+  };
 }
 
 export async function parseRulesFromPrompt(rawPrompt: string): Promise<AiRuleDefinition> {
+  // TODO: enrich prompt with few-shot examples; validate keys; map to internal DSL later
   const sys = 'You convert natural language into machine-readable rule definitions. Respond ONLY with JSON matching {"filter": {}, "action": {}, "rawPrompt": string}.';
   const usr = `Convert this rule idea into a structured filter/action pair. Keep keys generic and values simple.\nPROMPT: ${rawPrompt}`;
   const json = await chatJson(sys, usr);
@@ -131,6 +156,11 @@ export async function parseRulesFromPrompt(rawPrompt: string): Promise<AiRuleDef
   if (lower.includes('tag')) action.addTag = (rawPrompt.match(/tag\s+"?([\w-\s]+)"?/i)?.[1] ?? 'auto');
   if (lower.includes('move')) action.destination = 'Smart/Auto';
   return { rawPrompt, filter, action };
+}
+
+// Compatibility wrapper matching alternate naming in design notes
+export async function rulesFromText(promptText: string): Promise<AiRuleDefinition> {
+  return parseRulesFromPrompt(promptText);
 }
 
 // Semantic search (stub): compute a naive score by keyword overlap
@@ -155,3 +185,10 @@ export async function semanticSearch(
     .slice(0, 10);
 }
 
+// Simple stub variant to clarify API contract in early integrations
+export async function semanticSearchStub(query: string): Promise<AiSemanticHit[]> {
+  return [
+    { fileId: 'mock-file-1', score: 0.92 },
+    { fileId: 'mock-file-2', score: 0.88 },
+  ];
+}
