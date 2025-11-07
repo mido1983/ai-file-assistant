@@ -17,6 +17,8 @@ export default function StatsPanel() {
   const [collections, setCollections] = useState(87);
   const [timeSaved, setTimeSaved] = useState(6);
   const intervalRef = useRef<number | null>(null);
+  // Use a deterministic number formatter to avoid SSR/CSR locale mismatches
+  const nf = useMemo(() => new Intl.NumberFormat('en-US'), []);
 
   useEffect(() => {
     intervalRef.current = window.setInterval(() => {
@@ -56,15 +58,15 @@ export default function StatsPanel() {
       <dl className="grid gap-3">
         <div className="rounded-lg border border-slate-200 p-3">
           <dt className="text-xs text-slate-600">Files organized this month</dt>
-          <dd className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{files.toLocaleString()}</dd>
+          <dd className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{nf.format(files)}</dd>
         </div>
         <div className="rounded-lg border border-slate-200 p-3">
           <dt className="text-xs text-slate-600">Duplicates removed</dt>
-          <dd className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{dupes.toLocaleString()}</dd>
+          <dd className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{nf.format(dupes)}</dd>
         </div>
         <div className="rounded-lg border border-slate-200 p-3">
           <dt className="text-xs text-slate-600">Smart collections created</dt>
-          <dd className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{collections.toLocaleString()}</dd>
+          <dd className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{nf.format(collections)}</dd>
         </div>
         <div className="rounded-lg border border-slate-200 p-3">
           <dt className="text-xs text-slate-600">Average time saved per week</dt>

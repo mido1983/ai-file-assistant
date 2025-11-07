@@ -14,8 +14,12 @@ const DEFAULT_SESSION_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
 function getAuthSecret(): string {
   const secret = process.env.AUTH_SECRET;
   if (!secret) {
-    // In development it's helpful to fail loudly.
-    throw new Error('AUTH_SECRET not set. Please configure an app secret.');
+    // In dev, use an explicit fallback to avoid silent 500s during local work.
+    // AUTH_SECRET MUST be set in production.
+    if (process.env.NODE_ENV !== 'production') {
+      return 'dev-insecure-auth-secret-change-me'; // TODO: replace with env in all environments
+    }
+    throw new Error('AUTH_SECRET is required in production. Set process.env.AUTH_SECRET.');
   }
   return secret;
 }
@@ -141,6 +145,20 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   try {
+    // Prefer bcrypt if the stored hash looks like bcrypt (e.g. $2b$...).
+    if (typeof stored === 'string' && stored.startsWith('$2')) {
+      try {
+        const bcrypt: any = await import('bcrypt').then(m => m.default ?? m).catch(() => null);
+        if (bcrypt) return await bcrypt.compare(password, stored);
+        // If bcrypt is unavailable (e.g., dev without native module), fall back to scrypt check
+        // which will simply fail for bcrypt hashes.
+      } catch {
+        // ignore and fall through to scrypt path
+      }
+      return false;
+    }
+
+    // Legacy scrypt format: scrypt:<saltHex>:<hashHex>
     const [scheme, saltHex, hashHex] = stored.split(':');
     if (scheme !== 'scrypt') return false;
     const salt = Buffer.from(saltHex, 'hex');
@@ -153,4 +171,3 @@ export async function verifyPassword(password: string, stored: string): Promise<
     return false;
   }
 }
-
