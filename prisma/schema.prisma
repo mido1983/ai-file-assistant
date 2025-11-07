@@ -1,0 +1,87 @@
+// NOTE:
+// This schema is used by the light backend running inside Next.js (Vercel).
+// There will also be a separate heavy Python backend later.
+// Keep models generic enough so they can be consumed by both.
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User of the AI File Assistant
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String   // TODO: ensure strong hashing and salting (bcrypt)
+  role         UserRole @default(USER)
+  plan         Plan     @default(FREE)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  files        File[]
+  aiUsage      AiUsage[]
+}
+
+// Stored file metadata and extracted text
+model File {
+  id           String   @id @default(cuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+
+  originalName String
+  mimeType     String
+  size         Int
+
+  status       FileStatus @default(UPLOADED)
+  category     String?    // e.g. "recipe", "contract", "invoice"
+  summary      String?
+  tagsJson     String?    // JSON-encoded list of tags
+  text         String?    // extracted text (for AI analysis)
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+// Monthly AI usage per user (for future limits & billing)
+model AiUsage {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+
+  // Year-month string like "2025-11"
+  period    String
+  tokens    Int      @default(0)
+  requests  Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, period])
+}
+
+// Enums
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum Plan {
+  FREE
+  PRO
+  BUSINESS
+}
+
+enum FileStatus {
+  UPLOADED
+  PROCESSING
+  READY
+  ERROR
+}
